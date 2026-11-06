@@ -1,0 +1,12 @@
+----
+import {
+  "moonbitlang/async",
+  "moonbitlang/async/shell",
+}
+----
+
+async fn main {
+  @shell.Cmd("moon", ["run", "maintenance/identity.mbtx", "--deny-warn", "--", "commit"]).run()
+  @shell.Cmd("moon", ["fmt", "--check"]).run()
+  @shell.Cmd("moon", ["test", "--target", "wasm,js", "--deny-warn"]).run()
+}

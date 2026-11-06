@@ -1,2 +1,2 @@
 #!/bin/sh
-exec moon run maintenance/identity.mbtx -- commit
+exec moon run maintenance/preflight.mbtx

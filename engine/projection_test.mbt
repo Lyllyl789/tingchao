@@ -9,7 +9,7 @@ fn three() -> @tingchao.Hierarchy raise {
 
 ///|
 fn near(actual : Double, expected : Double) -> Unit raise {
-  assert_true((actual - expected).abs() <= 1e-10 * (1.0 + expected.abs()))
+  assert_true((actual - expected).abs() <= 1.0e-10 * (1.0 + expected.abs()))
 }
 
 ///|
@@ -60,23 +60,29 @@ test "OLS is linear, keeps negative solutions and tolerates large magnitudes" {
   let fitted = three().fit(@tingchao.Ols)
   let a = fitted.apply([10.0, -30.0, 20.0])
   assert_true(a[1] < 0.0)
-  let large = fitted.apply([1e80, -3e80, 2e80])
-  for i in 0..<3 { near(large[i] / 1e79, a[i]) }
+  let large = fitted.apply([1.0e80, -3.0e80, 2.0e80])
+  for i in 0..<3 {
+    near(large[i] / 1.0e79, a[i])
+  }
 }
 
 ///|
 test "invalid numeric vectors and variances fail without partial output" {
   let tree = three()
-  for values in [[1.0], [1.0, 0.0 / 0.0, 2.0], [1.0, 1e200, 2.0]] {
+  for values in [[1.0], [1.0, 0.0 / 0.0, 2.0], [1.0, 1.0e200, 2.0]] {
     try tree.fit(@tingchao.Ols).apply(values) catch {
       @tingchao.ReconcileError::InvalidInput(_) => ()
       _ => fail("expected validation error")
-    } noraise { _ => fail("invalid vector accepted") }
+    } noraise {
+      _ => fail("invalid vector accepted")
+    }
   }
-  for values in [[1.0], [0.0, 1.0, 1.0], [1e-20, 1.0, 1.0]] {
+  for values in [[1.0], [0.0, 1.0, 1.0], [1.0e-20, 1.0, 1.0]] {
     try tree.fit(@tingchao.Wls, variances=values) catch {
       @tingchao.ReconcileError::InvalidInput(_) => ()
       _ => fail("expected variance error")
-    } noraise { _ => fail("invalid variance accepted") }
+    } noraise {
+      _ => fail("invalid variance accepted")
+    }
   }
 }
