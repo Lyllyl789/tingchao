@@ -1,0 +1,12 @@
+import {
+  "Lyllyl789/tingchao/exchange",
+  "moonbitlang/core/json",
+}
+
+supported_targets = "js"
+
+pkgtype(kind: "executable")
+
+options(
+  link: { "js": { "format": "esm" } },
+)

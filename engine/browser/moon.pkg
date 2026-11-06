@@ -1,0 +1,11 @@
+import {
+  "Lyllyl789/tingchao/exchange",
+}
+
+supported_targets = "js"
+
+pkgtype(kind: "foreign_library")
+
+options(
+  link: { "js": { "format": "esm" } },
+)
