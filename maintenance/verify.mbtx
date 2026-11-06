@@ -1,0 +1,82 @@
+----
+import {
+  "moonbitlang/async",
+  "moonbitlang/async/fs",
+  "moonbitlang/async/shell",
+  "moonbitlang/core/json",
+  "moonbitlang/x/fs" @disk,
+}
+----
+
+fn numeric(value : Json) -> Array[Double] raise {
+  @json.from_json(value)
+}
+
+async fn main {
+  let executable = "_build/js/release/build/terminal/terminal.js"
+  for name in ["retail", "energy", "visitors", "accuracy-tradeoff"] {
+    let file = "cases/" + name + ".json"
+    let source = @json.parse(@disk.read_file_to_string(file))
+    guard source is { "nodes": Array(nodes), .. } else { fail("fixture lacks nodes") }
+    let result = @shell.Cmd("node", [executable, file]).output()
+    result.check()
+    let report = @json.parse(result.stdout())
+    guard report is {
+      "status": "ok", "node_ids": Array(ids), "periods": Array(rows), ..
+    } else { fail("fixture did not produce a complete report") }
+    let positions : Map[String, Int] = Map([])
+    for i, id in ids {
+      guard id is String(value) else { fail("invalid node id") }
+      positions[value] = i
+    }
+    for row in rows {
+      guard row is { "base": base, "coherent": adjusted, "adjustments": deltas, .. } else {
+        fail("report lacks numeric vectors")
+      }
+      let original = numeric(base)
+      let values = numeric(adjusted)
+      let changes = numeric(deltas)
+      guard values.length() == nodes.length() else { fail("node coverage mismatch") }
+      let sums = Array::make(values.length(), 0.0)
+      let counts = Array::make(values.length(), 0)
+      for i, node in nodes {
+        if node is { "parent": String(parent), .. } {
+          guard positions.get(parent) is Some(p) else { fail("unknown parent") }
+          sums[p] += values[i]
+          counts[p] += 1
+        }
+        guard (changes[i] - (values[i] - original[i])).abs() < 1.0e-8 else {
+          fail("adjustment mismatch")
+        }
+      }
+      for i in 0..<values.length() {
+        guard counts[i] == 0 || (values[i] - sums[i]).abs() < 1.0e-8 else {
+          fail("independent parent sum failed")
+        }
+      }
+    }
+    let csv = @shell.Cmd("node", [executable, file, "--csv"]).output()
+    csv.check()
+    guard csv.stdout().split("\n").count() == rows.length() * nodes.length() + 2 else {
+      fail("CSV row coverage mismatch")
+    }
+    println("Verified " + name + ": node coverage, parent sums, adjustments and CSV")
+  }
+  let usage = @shell.Cmd("node", [executable]).output()
+  guard usage.exit_code() == 64 else { fail("usage exit code mismatch") }
+  let missing = @shell.Cmd("node", [executable, "missing-request.json"]).output()
+  guard missing.exit_code() == 74 && !missing.stderr().contains("missing-request.json") else {
+    fail("file error must be path-free and exit 74")
+  }
+  if !@fs.exists("reports") {
+    @fs.mkdir("reports", recursive=true)
+  }
+  @fs.write_file("reports/invalid.json", "{\"method\":\"ols\",\"method\":\"wls\"}")
+  let invalid = @shell.Cmd("node", [executable, "reports/invalid.json"]).output()
+  guard invalid.exit_code() == 2 else { fail("invalid input exit code mismatch") }
+  @fs.write_file("reports/numerical.json",
+    "{\"nodes\":[{\"id\":\"all\",\"parent\":null},{\"id\":\"a\",\"parent\":\"all\"},{\"id\":\"b\",\"parent\":\"all\"}],\"method\":\"ols\",\"forecasts\":[{\"period\":1,\"values\":[1e100,-1e100,1e100]}]}")
+  let numerical = @shell.Cmd("node", [executable, "reports/numerical.json"]).output()
+  guard numerical.exit_code() == 3 else { fail("numerical failure exit code mismatch") }
+  println("Verified CLI exit codes 0, 2, 3, 64 and 74; file errors do not expose paths.")
+}

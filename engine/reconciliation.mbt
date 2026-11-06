@@ -76,6 +76,13 @@ pub fn Reconciler::apply(
     BottomUp => self.tree.leaves.map(i => forecast[i])
     Ols | Wls => solve_leaves(self.tree, forecast, self.variances)
   }
+  for value in leaves {
+    guard checked_value(value) else {
+      raise NumericalFailure(
+        "solve.range: reconciled leaves exceed supported numeric range",
+      )
+    }
+  }
   let result = self.tree.aggregate(leaves)
   for value in result {
     guard checked_value(value) else {
