@@ -1,0 +1,22 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Lyllyl789/tingchao/exchange"
+
+import {
+  "Lyllyl789/tingchao",
+  "moonbitlang/core/json",
+}
+
+// Values
+pub fn process(String) -> String
+
+pub fn run_request(String) -> @json.Json raise @tingchao.ReconcileError
+
+pub fn to_csv(@json.Json) -> String raise @tingchao.ReconcileError
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

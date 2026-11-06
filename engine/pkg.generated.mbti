@@ -1,0 +1,62 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Lyllyl789/tingchao"
+
+// Values
+pub fn hierarchy(Array[Node]) -> Hierarchy raise ReconcileError
+
+// Errors
+pub(all) suberror ReconcileError {
+  InvalidInput(String)
+  NumericalFailure(String)
+}
+
+// Types and methods
+pub(all) struct Evaluation {
+  horizons : Int32
+  base_coherence : Double
+  reconciled_coherence : Double
+  nodes : Array[NodeScore]
+}
+
+pub struct Hierarchy {
+  // private fields
+}
+pub fn Hierarchy::aggregate(Self, Array[Double]) -> Array[Double] raise ReconcileError
+pub fn Hierarchy::aggregation_matrix(Self) -> Array[Array[Double]]
+pub fn Hierarchy::coherence_error(Self, Array[Double]) -> Double raise ReconcileError
+pub fn Hierarchy::fit(Self, Method, variances? : Array[Double]) -> Reconciler raise ReconcileError
+pub fn Hierarchy::fit_residuals(Self, Array[Array[Double]], floor_ratio? : Double) -> Reconciler raise ReconcileError
+pub fn Hierarchy::leaf_ids(Self) -> Array[String]
+pub fn Hierarchy::node_count(Self) -> Int32
+pub fn Hierarchy::node_ids(Self) -> Array[String]
+
+pub(all) enum Method {
+  BottomUp
+  Ols
+  Wls
+}
+
+pub(all) struct Node {
+  id : String
+  parent : String?
+}
+
+pub(all) struct NodeScore {
+  id : String
+  base_mae : Double
+  reconciled_mae : Double
+  base_rmse : Double
+  reconciled_rmse : Double
+}
+
+pub struct Reconciler {
+  // private fields
+}
+pub fn Reconciler::apply(Self, Array[Double]) -> Array[Double] raise ReconcileError
+pub fn Reconciler::apply_many(Self, Array[Array[Double]]) -> Array[Array[Double]] raise ReconcileError
+pub fn Reconciler::error_variances(Self) -> Array[Double]
+pub fn Reconciler::evaluate(Self, Array[Array[Double]], Array[Array[Double]]) -> Evaluation raise ReconcileError
+
+// Type aliases
+
+// Traits

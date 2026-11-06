@@ -1,0 +1,40 @@
+name: Verify the forecast pipeline
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  portable:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: hustcer/setup-moonbit@ed21306b8662bfce7c6f51961de8df3977fd03ae
+        with:
+          version: '0.10.20+65efd5b93'
+          core-version: '0.10.20+65efd5b93'
+      - name: Record toolchain
+        run: moon version --all
+      - name: Check supported packages
+        run: moon check --target all --deny-warn
+      - name: Test portable and native cores
+        run: moon test --target wasm,wasm-gc,js,native --deny-warn
+      - name: Build supported packages
+        run: moon build --target all --deny-warn
+      - name: Check canonical formatting
+        run: moon fmt --check
+      - name: Review generated interfaces
+        run: moon info
+      - name: Check tracked interfaces
+        run: git diff --exit-code
+      - name: Build browser and terminal hosts
+        run: moon run maintenance/build.mbtx --deny-warn
+      - name: Verify independent file workflows
+        run: moon run maintenance/verify.mbtx --deny-warn
