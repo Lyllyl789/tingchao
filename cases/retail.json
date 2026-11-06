@@ -1,0 +1,22 @@
+{
+  "title": "沿江门店 · 下周销量",
+  "unit": "件",
+  "nodes": [
+    { "id": "沿江总店", "parent": null },
+    { "id": "东岸店", "parent": "沿江总店" },
+    { "id": "西岸店", "parent": "沿江总店" }
+  ],
+  "method": "wls",
+  "calibration": [
+    { "period": -4, "residuals": [-8, -2, -4] },
+    { "period": -3, "residuals": [0, 1, 0] },
+    { "period": -2, "residuals": [8, 2, 4] },
+    { "period": -1, "residuals": [4, -1, 2] }
+  ],
+  "forecasts": [
+    { "period": 1, "values": [100, 70, 50], "actual": [112, 65, 47] },
+    { "period": 2, "values": [125, 60, 55], "actual": [118, 62, 56] },
+    { "period": 3, "values": [130, 85, 60], "actual": [140, 82, 58] },
+    { "period": 4, "values": [150, 80, 65], "actual": [148, 83, 65] }
+  ]
+}

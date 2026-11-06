@@ -1,0 +1,11 @@
+{
+  "title": "反例 · 一致性与准确率是两件事",
+  "unit": "件",
+  "nodes": [
+    { "id": "总部", "parent": null },
+    { "id": "甲店", "parent": "总部" },
+    { "id": "乙店", "parent": "总部" }
+  ],
+  "method": "ols",
+  "forecasts": [{ "period": 1, "values": [0, 50, 50], "actual": [100, 50, 50] }]
+}

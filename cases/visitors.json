@@ -1,0 +1,16 @@
+{
+  "title": "听风景区 · 分区客流",
+  "unit": "人次",
+  "nodes": [
+    { "id": "全园", "parent": null },
+    { "id": "湖畔", "parent": "全园" },
+    { "id": "山径", "parent": "全园" },
+    { "id": "展馆", "parent": "全园" }
+  ],
+  "method": "bottom_up",
+  "forecasts": [
+    { "period": 1, "values": [1000, 500, 300, 350], "actual": [1080, 480, 280, 320] },
+    { "period": 2, "values": [1400, 700, 350, 450], "actual": [1480, 690, 360, 430] },
+    { "period": 3, "values": [1100, 400, 400, 300], "actual": [1100, 410, 390, 300] }
+  ]
+}
