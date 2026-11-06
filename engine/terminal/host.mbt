@@ -14,8 +14,13 @@ extern "js" fn read_request(name : String) -> FixedArray[String] =
   #|     const info = fs.fstatSync(fd);
   #|     if (!info.isFile() || info.size > 1048576) return ['error', 'input.size: expected a regular file of at most 1 MiB'];
   #|     const bytes = Buffer.alloc(info.size + 1);
-  #|     const count = fs.readSync(fd, bytes, 0, bytes.length, 0);
-  #|     if (count > info.size) return ['error', 'input.changed: file grew while being read'];
+  #|     let count = 0;
+  #|     while (count < bytes.length) {
+  #|       const read = fs.readSync(fd, bytes, count, bytes.length - count, count);
+  #|       if (read === 0) break;
+  #|       count += read;
+  #|     }
+  #|     if (count !== info.size) return ['error', 'input.changed: file size changed while being read'];
   #|     return ['ok', new TextDecoder('utf-8', {fatal: true}).decode(bytes.subarray(0, count))];
   #|   } catch (_) {
   #|     return ['error', 'input.read: could not read a valid UTF-8 request'];

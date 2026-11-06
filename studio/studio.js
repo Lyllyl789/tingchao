@@ -10,6 +10,7 @@ let worker = null;
 let generation = 0;
 let busy = false;
 let loadGeneration = 0;
+let savedWeights = null;
 
 function message(text = '', error = false) {
   $('message').textContent = text;
@@ -190,6 +191,7 @@ function drawScores() {
 
 async function loadCase() {
   const id = ++loadGeneration;
+  savedWeights = null;
   invalidate();
   $('run').disabled = true;
   try {
@@ -213,7 +215,15 @@ $('method-select').addEventListener('change', () => {
     const input = JSON.parse($('source').value);
     // Rewriting is explicit when the user changes the selected calculation method.
     input.method = selected;
-    if (selected !== 'wls') { delete input.calibration; delete input.variances; delete input.floor_ratio; }
+    if (selected !== 'wls') {
+      if (input.calibration || input.variances) {
+        savedWeights = {};
+        for (const key of ['calibration', 'variances', 'floor_ratio']) if (key in input) savedWeights[key] = input[key];
+      }
+      delete input.calibration; delete input.variances; delete input.floor_ratio;
+    } else if (!input.calibration && !input.variances && savedWeights) {
+      Object.assign(input, structuredClone(savedWeights));
+    }
     $('source').value = JSON.stringify(input,null,2);
     invalidate();
     $('method-note').textContent = methods[selected];
@@ -224,6 +234,7 @@ $('method-select').addEventListener('change', () => {
 $('period-select').addEventListener('change',drawPeriod);
 $('run').addEventListener('click',run);
 $('source').addEventListener('input', () => {
+  savedWeights = null;
   loadGeneration++; invalidate();
   try {
     const mode = JSON.parse($('source').value).method;
@@ -235,6 +246,7 @@ $('import').addEventListener('change',async event => {
   event.target.value='';
   if (!file) return;
   const id=++loadGeneration;
+  savedWeights=null;
   invalidate();
   if (file.size>1048576) return message('文件超过 1 MiB，请缩小输入。',true);
   try {
