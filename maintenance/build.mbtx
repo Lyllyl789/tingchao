@@ -1,0 +1,17 @@
+----
+import {
+  "moonbitlang/async",
+  "moonbitlang/async/fs",
+  "moonbitlang/async/shell",
+}
+----
+
+async fn main {
+  @shell.Cmd("moon", ["build", "--target", "js", "--release", "--deny-warn"]).run()
+  if !@fs.exists("studio/compiled") {
+    @fs.mkdir("studio/compiled", recursive=true)
+  }
+  let engine = @fs.read_file("_build/js/release/build/browser/browser.js")
+  @fs.write_file("studio/compiled/engine.js", engine)
+  println("Built the terminal application and the studio calculation engine.")
+}

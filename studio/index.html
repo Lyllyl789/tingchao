@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#173c39">
+  <title>听潮 Tingchao · 预测协调工作台</title>
+  <link rel="icon" href="/mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/studio.css">
+  <script type="module" src="/studio.js"></script>
+</head>
+<body>
+  <header class="masthead">
+    <a class="brand" href="/" aria-label="听潮首页"><img src="/mark.svg" alt="" width="42" height="42"><span>听潮 <small>TINGCHAO</small></span></a>
+    <span class="edition">FORECAST FIELDNOTES <i>01</i></span>
+    <span class="local-badge"><span></span> 数据在浏览器内计算</span>
+  </header>
+  <main>
+    <section class="intro">
+      <div><p class="eyebrow">把分散的判断，汇成一条潮。</p><h1>各有预测，<br><em>总能合流。</em></h1><p class="lede">总部与分支的预测对不上？<br>保留每一份判断，协调成满足加总关系的计划。</p></div>
+      <div class="equation-art" aria-label="示例：100 与分项 70 加 50 不一致；协调后总量与分项相等">
+        <div class="art-label">一组预测的合流</div><div class="art-before"><b>100</b><span>≠</span><b>70 <small>+</small> 50</b></div>
+        <svg viewBox="0 0 400 100" aria-hidden="true"><path d="M10 20C100 20 105 80 200 50S300 80 390 50M10 50C100 50 105 100 200 65S300 90 390 50M10 80C100 80 105 120 200 80S300 100 390 50"/></svg>
+        <div class="art-after"><b>106.67</b><span>≈</span><b>63.33 <small>+</small> 43.33</b></div><p>等权最小二乘 · 显示值四舍五入</p>
+      </div>
+    </section>
+    <section class="workspace" aria-label="预测协调工作台">
+      <div class="workspace-head"><div><p class="eyebrow">THE CONFLUENCE DESK</p><h2>让数据说得通</h2></div><span id="engine-status" role="status">正在准备计算引擎…</span></div>
+      <div class="desk">
+        <aside class="controls">
+          <label for="case-select">01 / 选择一份研究</label>
+          <select id="case-select"><option value="retail">沿江门店 · 销量</option><option value="energy">南湾园区 · 能耗</option><option value="visitors">听风景区 · 客流</option><option value="accuracy-tradeoff">反例 · 一致未必更准</option></select>
+          <p class="sample-note">内置数据为构造样例，可导入自己的文件。</p>
+          <label for="method-select">02 / 协调方式</label>
+          <select id="method-select"><option value="ols">OLS · 等权协调</option><option value="wls">WLS · 误差方差加权</option><option value="bottom_up">Bottom-up · 自下而上</option></select>
+          <p id="method-note" class="method-note"></p>
+          <label for="period-select">03 / 查看周期</label><select id="period-select" disabled><option>等待计算</option></select>
+          <button id="run" class="primary" disabled>协调这组预测 <span>↗</span></button>
+          <div class="file-actions"><label class="file-label" for="import">导入 JSON<input type="file" id="import" accept=".json,application/json"></label><button id="export-input">保存输入</button></div>
+          <details class="source-details"><summary>编辑原始 JSON</summary><label class="sr-only" for="source">预测输入 JSON</label><textarea id="source" spellcheck="false"></textarea><p>编辑后点击“协调这组预测”。WLS 需要校准残差或显式方差。</p></details>
+          <p class="privacy">输入不上传。导入后仅在本页内存中保留，关闭页面即清除。</p>
+        </aside>
+        <section class="results" aria-label="协调结果">
+          <div id="message" role="status" aria-live="polite"></div>
+          <div class="result-title"><div><span class="eyebrow">CURRENT STUDY</span><h3 id="study-title">准备一份预测</h3></div><button id="export-report" disabled>导出报告 ↓</button></div>
+          <div class="stats"><article><span>原始加总偏差</span><strong id="before">—</strong><small id="unit-before"></small></article><article><span>协调后加总偏差</span><strong id="after">—</strong><small id="unit-after"></small></article><article><span>有实际值的周期</span><strong id="observed">—</strong><small>用于独立评估</small></article></div>
+          <div class="chart-heading"><h4>每个节点，如何调整</h4><div class="legend"><span class="base-dot"></span>原始 <span class="coherent-dot"></span>协调 <span class="actual-dot"></span>实际</div></div>
+          <div id="chart" class="chart" aria-label="各节点原始、协调和实际值比较"></div>
+          <div class="table-wrap"><table><caption id="table-caption">节点明细</caption><thead><tr><th scope="col">节点</th><th scope="col">原始</th><th scope="col">协调</th><th scope="col">调整量</th><th scope="col">实际</th></tr></thead><tbody id="rows"></tbody></table></div>
+          <div class="evaluation"><div><h4>一致性之外，还要看误差</h4><p id="evaluation-note">有留出实际值时，分别比较各节点的 MAE。</p></div><div id="score-table"></div></div>
+        </section>
+      </div>
+    </section>
+    <section class="reading"><div><span>01 / 保留原始判断</span><h3>修正总量，也看见代价。</h3><p>每一项调整都可回查。负值保留并提示，不擅自截断；显示数字可以取整，计算仍使用完整精度。</p></div><div><span>02 / 分开两种检验</span><h3>加总一致，不等于更准确。</h3><p>误差报告保留变差的节点。校准期必须早于预测期，留出集的实际值不会参与权重拟合。</p></div><div><span>03 / 适合什么数据</span><h3>一棵树，一种可加总的量。</h3><p>适用于互不重复的门店、楼宇或区域。比例、均价、重复计数与不同单位需要先处理。</p></div></section>
+  </main>
+  <footer><span>听潮 / TINGCHAO</span><p>让每一份预测，都能找到自己的位置。</p><span>Crafted by Lyllyl789 · MIT</span></footer>
+</body>
+</html>
