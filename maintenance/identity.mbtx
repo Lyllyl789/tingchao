@@ -1,0 +1,47 @@
+----
+import {
+  "moonbitlang/async",
+  "moonbitlang/async/shell",
+  "moonbitlang/core/env",
+}
+----
+
+async fn git(args : Array[String]) -> String {
+  let result = @shell.Cmd("git", args).output()
+  result.check()
+  result.stdout().trim().to_owned()
+}
+
+async fn main {
+  let expected = "Lyllyl789 <300824505+Lyllyl789@users.noreply.github.com>"
+  for variable in ["GIT_AUTHOR_IDENT", "GIT_COMMITTER_IDENT"] {
+    let identity = git(["var", variable])
+    guard identity.has_prefix(expected + " ") else {
+      fail("Git identity must belong to Lyllyl789; no commit or push is allowed.")
+    }
+  }
+  let args = @env.args()
+  if args.contains("push") {
+    let account = @shell.Cmd("gh", ["api", "user", "--jq", ".login"]).output()
+    account.check()
+    guard account.stdout().trim().to_owned() == "Lyllyl789" else {
+      fail("Active GitHub account must be Lyllyl789. Switch accounts and retry.")
+    }
+    let remote = git(["remote", "get-url", "--push", "origin"])
+    guard remote == "https://github.com/Lyllyl789/tingchao.git" ||
+      remote == "git@github.com:Lyllyl789/tingchao.git" else {
+      fail("Push destination must be Lyllyl789/tingchao.")
+    }
+    let history = git(["log", "--all", "--format=%an <%ae>|%cn <%ce>"])
+    for row in history.split("\n") {
+      guard row.to_owned() == expected + "|" + expected else {
+        fail("History contains a different author or committer; push refused.")
+      }
+    }
+    let messages = git(["log", "--all", "--format=%B"])
+    guard !messages.to_lower().contains("co-authored-by:") else {
+      fail("Additional authorship trailers are not permitted in this repository.")
+    }
+  }
+  println("Identity verified: Lyllyl789")
+}
