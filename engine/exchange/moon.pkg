@@ -1,0 +1,8 @@
+import {
+  "Lyllyl789/tingchao" @tide,
+  "moonbitlang/core/json",
+}
+
+import {
+  "moonbitlang/core/json",
+} for "test"
